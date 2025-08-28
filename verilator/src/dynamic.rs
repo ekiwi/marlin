@@ -6,10 +6,9 @@
 
 //! Support for dynamic models.
 
-use std::{collections::HashMap, ffi, fmt};
-
 use libloading::Library;
 use snafu::Snafu;
+use std::{collections::HashMap, ffi, fmt, num::TryFromIntError};
 
 use crate::{PortDirection, types};
 
@@ -65,6 +64,58 @@ impl From<types::IData> for VerilatorValue {
 impl From<types::QData> for VerilatorValue {
     fn from(value: types::QData) -> Self {
         Self::QData(value)
+    }
+}
+
+impl TryFrom<VerilatorValue> for types::CData {
+    type Error = TryFromIntError;
+
+    fn try_from(value: VerilatorValue) -> Result<Self, Self::Error> {
+        match value {
+            VerilatorValue::CData(v) => Ok(v),
+            VerilatorValue::SData(v) => v.try_into(),
+            VerilatorValue::IData(v) => v.try_into(),
+            VerilatorValue::QData(v) => v.try_into(),
+        }
+    }
+}
+
+impl TryFrom<VerilatorValue> for types::SData {
+    type Error = TryFromIntError;
+
+    fn try_from(value: VerilatorValue) -> Result<Self, Self::Error> {
+        match value {
+            VerilatorValue::CData(v) => Ok(v as Self),
+            VerilatorValue::SData(v) => Ok(v),
+            VerilatorValue::IData(v) => v.try_into(),
+            VerilatorValue::QData(v) => v.try_into(),
+        }
+    }
+}
+
+impl TryFrom<VerilatorValue> for types::IData {
+    type Error = TryFromIntError;
+
+    fn try_from(value: VerilatorValue) -> Result<Self, Self::Error> {
+        match value {
+            VerilatorValue::CData(v) => Ok(v as Self),
+            VerilatorValue::SData(v) => Ok(v as Self),
+            VerilatorValue::IData(v) => Ok(v),
+            VerilatorValue::QData(v) => v.try_into(),
+        }
+    }
+}
+
+impl TryFrom<VerilatorValue> for types::QData {
+    type Error = TryFromIntError;
+
+    fn try_from(value: VerilatorValue) -> Result<Self, Self::Error> {
+        match value {
+            VerilatorValue::CData(v) => Ok(v as Self),
+            VerilatorValue::SData(v) => Ok(v as Self),
+            VerilatorValue::IData(v) => Ok(v as Self),
+            VerilatorValue::QData(v) => Ok(v),
+        }
     }
 }
 

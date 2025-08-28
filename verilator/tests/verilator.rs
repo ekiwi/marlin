@@ -13,15 +13,29 @@ fn wide_input() {
     )
     .unwrap();
 
-    let _dut = runtime
+    let mut dut = runtime
         .create_dyn_model(
             "wide",
             "tests/wide.v",
             &[
                 ("in", 2999, 0, PortDirection::Input),
                 ("out", 2999, 0, PortDirection::Output),
+                ("ni", 31, 0, PortDirection::Input),
+                ("no", 31, 0, PortDirection::Output),
             ],
             VerilatedModelConfig::default(),
         )
         .unwrap();
+
+    // test with narrow values
+    dut.pin("ni", 1234u16).unwrap();
+    dut.eval();
+    let out: u32 = dut.read("no").unwrap().try_into().unwrap();
+    assert_eq!(out, 1234u32);
+
+    // wide values
+    dut.pin("in", 1234u32).unwrap();
+    dut.eval();
+    let out: u32 = dut.read("out").unwrap().try_into().unwrap();
+    assert_eq!(out, 1234u32);
 }

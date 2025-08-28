@@ -525,15 +525,6 @@ impl VerilatorRuntime {
                 name
             );
         }
-        if let Some((port, _, _, _)) =
-            ports.iter().find(|(_, high, low, _)| high + 1 - low > 64)
-        {
-            whatever!(
-                "Port {} on module {} is greater than 64 bits",
-                port,
-                name
-            );
-        }
 
         let mut hasher = hash::DefaultHasher::new();
         ports.hash(&mut hasher);
